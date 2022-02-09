@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 import os
+import io
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
@@ -10,7 +11,7 @@ main_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def norm_path(s: str):
-    return re.sub(r'[^\w\-_\. ]', '_', s)
+    return re.sub(r'[^\w\-_]', '_', s)
 
 
 def get_groups(a, n):
@@ -21,14 +22,14 @@ def get_groups(a, n):
     ]
 
 
-def merge_images(figures):
-    all_imgs = [
-        Image.frombytes(
-            'RGB',
-            fig.canvas.get_width_height(), fig.canvas.tostring_rgb())
-        for fig in figures
-    ]
+def fig_to_img(fig):
+    outbuf = io.BytesIO()
+    fig.savefig(outbuf, dpi=200, bbox_inches='tight', format='jpeg')
+    outbuf.seek(0)
+    return Image.open(outbuf)
 
+
+def merge_images(all_imgs):
     imgs_groups = get_groups(all_imgs, 3)
     res = []
     for num, group in enumerate(imgs_groups):
@@ -58,9 +59,9 @@ def split_text(text, n_words=10):
 
 def get_people_data(df_people):
     res = {}
+    fig, ax = plt.subplots()
     for person in tqdm(filter(lambda a: '[' in a, list(df_people))):
         try:
-            fig, ax = plt.subplots()
             plt.subplots_adjust(top=0.85)
 
             x = df_people[person].dropna().to_numpy()
@@ -85,33 +86,34 @@ def get_people_data(df_people):
             if person[:person.find('[')] not in res:
                 res[person[:person.find('[')]] = []
 
-            res[person[:person.find('[')]].append(fig)
+            im = fig_to_img(fig)
+            res[person[:person.find('[')]].append(im)
 
             # plt.savefig(f"{dir}/{file_name}.jpeg", dpi=200, bbox_inches='tight')
             plt.cla()
-            plt.close(fig)
 
         except Exception as e:
             print(e)
+    plt.close(fig)
 
     for person, images in tqdm(res.items()):
         dir = os.path.join(main_path, 'people', norm_path(f"{person}"))
         Path(dir).mkdir(parents=True, exist_ok=True)
 
         for i, combined_images in enumerate(merge_images(images)):
-            file_name = norm_path(f'{i}.jpeg')
-            combined_images.save(f"{dir}/{file_name}.jpeg", dpi=(50, 50))
+            file_name = norm_path(f'{i}') + '.jpeg'
+            combined_images.save(os.path.join(dir, f"{file_name}"), dpi=(50, 50))
 
 
 def get_subjects_data(df_subjects):
     res = {}
+    fig, ax = plt.subplots()
     for i in list(df_subjects):
         subj = re.search(r'\[(.*?)\]', i)
         if subj:
             subject = subj.group(1)
             
             try:
-                fig, ax = plt.subplots()
                 plt.subplots_adjust(top=0.85)
 
 
@@ -138,13 +140,13 @@ def get_subjects_data(df_subjects):
                 if subject not in res:
                     res[subject] = []
 
-                res[subject].append(fig)
-
+                im = fig_to_img(fig)
+                res[subject].append(im)
                 plt.cla()
-                plt.close(fig)
 
             except Exception as e:
                 print(e)
+    plt.close(fig)
 
     for subject, images in tqdm(res.items()):
         dir = os.path.join(main_path, 'subjects', norm_path(f"{subject}"))
