@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
 import shutil
+import os
 from parse_form import get_people_data, get_subjects_data
+
+main_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def run():
@@ -15,7 +18,7 @@ def run():
         with col1:
             if st.button('Professors'):
                 get_people_data(df)
-                shutil.make_archive('myfile', 'zip', 'people')
+                shutil.make_archive('myfile', 'zip', os.path.join(main_path, 'people'))
 
                 with open("myfile.zip", "rb") as fp:
                     with col3:
@@ -29,7 +32,7 @@ def run():
         with col2:
             if st.button('Classes'):
                 get_subjects_data(df)
-                shutil.make_archive('myfile', 'zip', 'subjects')
+                shutil.make_archive('myfile', 'zip', os.path.join(main_path, 'subjects'))
 
                 with col3:
                     with open("myfile.zip", "rb") as fp:
