@@ -1,6 +1,4 @@
 import re
-from pathlib import Path
-import os
 import io
 import matplotlib.pyplot as plt
 from PIL import Image
