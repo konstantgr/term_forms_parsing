@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
 import zipfile
-from tqdm import tqdm
 
 
 def norm_path(s: str):
@@ -65,7 +64,7 @@ def get_data(df) -> bytes:
 def get_people_data(df_people, zip_buffer):
     res = {}
     fig, ax = plt.subplots()
-    for person in tqdm(filter(lambda a: '[' in a, list(df_people))):
+    for person in filter(lambda a: '[' in a, list(df_people)):
         try:
             plt.subplots_adjust(top=0.85)
 
@@ -101,7 +100,7 @@ def get_people_data(df_people, zip_buffer):
             print(e)
     plt.close(fig)
 
-    for person, images in tqdm(res.items()):
+    for person, images in res.items():
         dir = 'people/' + norm_path(f"{person}")
         # Path(dir).mkdir(parents=True, exist_ok=True)
 
@@ -155,7 +154,7 @@ def get_subjects_data(df_subjects, zip_buffer):
                 print(e)
     plt.close(fig)
 
-    for subject, images in tqdm(res.items()):
+    for subject, images in res.items():
         dir = 'subjects/' + norm_path(f"{subject}")
         # Path(dir).mkdir(parents=True, exist_ok=True)
 
