@@ -5,9 +5,8 @@ import io
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
+import zipfile
 from tqdm import tqdm
-
-main_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def norm_path(s: str):
@@ -57,7 +56,15 @@ def split_text(text, n_words=10):
     return result_string
 
 
-def get_people_data(df_people):
+def get_data(df) -> bytes:
+    zip_buf = io.BytesIO()
+    with zipfile.ZipFile(zip_buf, mode="w") as zf:
+        get_people_data(df, zf)
+        get_subjects_data(df, zf)
+    return zip_buf.getvalue()
+
+
+def get_people_data(df_people, zip_buffer):
     res = {}
     fig, ax = plt.subplots()
     for person in tqdm(filter(lambda a: '[' in a, list(df_people))):
@@ -97,15 +104,17 @@ def get_people_data(df_people):
     plt.close(fig)
 
     for person, images in tqdm(res.items()):
-        dir = os.path.join(main_path, 'people', norm_path(f"{person}"))
-        Path(dir).mkdir(parents=True, exist_ok=True)
+        dir = 'people' + norm_path(f"{person}")
+        # Path(dir).mkdir(parents=True, exist_ok=True)
 
         for i, combined_images in enumerate(merge_images(images)):
             file_name = norm_path(f'{i}') + '.jpeg'
-            combined_images.save(os.path.join(dir, f"{file_name}"), dpi=(50, 50))
+            with io.BytesIO() as bf:
+                combined_images.save(bf, dpi=(50, 50))
+                zip_buffer.writestr(f"{dir}/{file_name}", bf.getvalue())
 
 
-def get_subjects_data(df_subjects):
+def get_subjects_data(df_subjects, zip_buffer):
     res = {}
     fig, ax = plt.subplots()
     for i in list(df_subjects):
@@ -149,9 +158,13 @@ def get_subjects_data(df_subjects):
     plt.close(fig)
 
     for subject, images in tqdm(res.items()):
-        dir = os.path.join(main_path, 'subjects', norm_path(f"{subject}"))
-        Path(dir).mkdir(parents=True, exist_ok=True)
+        dir = 'subjects' + norm_path(f"{subject}")
+        # Path(dir).mkdir(parents=True, exist_ok=True)
 
         for i, combined_images in enumerate(merge_images(images)):
             file_name = norm_path(f'{i}.jpeg')
-            combined_images.save(f"{dir}/{file_name}.jpeg", dpi=(50, 50))
+            with io.BytesIO() as bf:
+                combined_images.save(bf, dpi=(50, 50))
+                zip_buffer.writestr(f"{dir}/{file_name}", bf.getvalue())
+            # combined_images.save(f"{dir}/{file_name}.jpeg", dpi=(50, 50))
+            # zip_buffer.writestr()
