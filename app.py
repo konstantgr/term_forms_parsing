@@ -7,16 +7,28 @@ main_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def run():
+
     uploaded_file = st.file_uploader("Choose a file")
+
     if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
+        extension = uploaded_file.name.split('.')[-1]
+
+        if extension == 'csv':
+            df = pd.read_csv(uploaded_file)
+        elif extension == 'xlsx':
+            df = pd.read_excel(uploaded_file)
+        else:
+            return
+
         st.write(df)
 
         col1, col2, col3 = st.columns([1, 1, 1])
 
         with col1:
-            zip_data = get_data(df)
+            with st.spinner('Анализ данных...'):
+                zip_data = get_data(df)
 
+            st.success('Анализ данных завершен')
             btn = st.download_button(
                 label="Download ZIP",
                 data=zip_data,
