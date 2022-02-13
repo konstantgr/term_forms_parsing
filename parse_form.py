@@ -30,7 +30,7 @@ def merge_images(all_imgs):
     res = []
     for num, group in enumerate(imgs_groups):
         min_shape = sorted([(np.sum(i.size), i.size) for i in group])[-1][1]
-        imgs_comb = np.hstack((np.asarray(i.resize(min_shape)) for i in group))
+        imgs_comb = np.hstack([np.asarray(i.resize(min_shape)) for i in group])
 
         imgs_comb = Image.fromarray(imgs_comb)
         res.append(imgs_comb)

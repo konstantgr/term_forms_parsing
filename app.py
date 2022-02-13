@@ -1,14 +1,11 @@
 import streamlit as st
 import pandas as pd
-import os
 from parse_form import get_data
-
-main_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def run():
 
-    uploaded_file = st.file_uploader("Choose a file")
+    uploaded_file = st.file_uploader("Choose a file", accept_multiple_files=False)
 
     if uploaded_file is not None:
         extension = uploaded_file.name.split('.')[-1]
