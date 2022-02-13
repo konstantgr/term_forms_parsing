@@ -159,9 +159,9 @@ def get_subjects_data(df_subjects, zip_buffer):
         # Path(dir).mkdir(parents=True, exist_ok=True)
 
         for i, combined_images in enumerate(merge_images(images)):
-            file_name = norm_path(f'{i}.jpeg')
+            file_name = norm_path(f'{i}')
             with io.BytesIO() as bf:
                 combined_images.save(bf, dpi=(50, 50), format='jpeg')
-                zip_buffer.writestr(f"{dir}/{file_name}", bf.getvalue())
+                zip_buffer.writestr(f"{dir}/{file_name}.jpeg", bf.getvalue())
             # combined_images.save(f"{dir}/{file_name}.jpeg", dpi=(50, 50))
             # zip_buffer.writestr()
