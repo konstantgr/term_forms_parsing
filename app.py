@@ -17,7 +17,8 @@ def run():
         else:
             return
 
-        st.write(df)
+        # st.write(df)
+        # st.dataframe(df)
 
         col1, col2, col3 = st.columns([1, 1, 1])
 
