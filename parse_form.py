@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
 import zipfile
+import pandas as pd
 
 
 def norm_path(s: str):
@@ -67,8 +68,7 @@ def get_people_data(df_people, zip_buffer):
     for person in filter(lambda a: '[' in a, list(df_people)):
         try:
             plt.subplots_adjust(top=0.85)
-
-            x = df_people[person].dropna().to_numpy()
+            x = pd.to_numeric(df_people[person], errors='coerce').dropna().to_numpy()
             n_bins = 5
             n, bins, patches = ax.hist(x, bins=n_bins, edgecolor='black')
             ticks = [(patch._x0 + patch._x0 + patch._width) / 2
@@ -122,8 +122,7 @@ def get_subjects_data(df_subjects, zip_buffer):
             try:
                 plt.subplots_adjust(top=0.85)
 
-
-                x = df_subjects[i].dropna().to_numpy()
+                x = pd.to_numeric(df_subjects[i], errors='coerce').dropna().to_numpy()
                 n_bins = 5
                 n, bins, patches = ax.hist(x, bins=n_bins, edgecolor='black')
                 ticks = [(patch._x0 + patch._x0 + patch._width)/2 for patch in patches]
