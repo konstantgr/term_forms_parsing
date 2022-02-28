@@ -68,11 +68,12 @@ def get_people_data(df_people, zip_buffer):
     for person in filter(lambda a: '[' in a, list(df_people)):
         try:
             plt.subplots_adjust(top=0.85)
+
             x = pd.to_numeric(df_people[person], errors='coerce').dropna().to_numpy()
             n_bins = 5
             n, bins, patches = ax.hist(x, bins=n_bins, edgecolor='black')
             ticks = [(patch._x0 + patch._x0 + patch._width) / 2
-                     for patch in patches]
+                    for patch in patches]
             ticklabels = [i + 1 for i in range(n_bins)]
 
             words_in_a_row = 6
@@ -122,15 +123,28 @@ def get_subjects_data(df_subjects, zip_buffer):
             try:
                 plt.subplots_adjust(top=0.85)
 
-                x = pd.to_numeric(df_subjects[i], errors='coerce').dropna().to_numpy()
-                n_bins = 5
-                n, bins, patches = ax.hist(x, bins=n_bins, edgecolor='black')
-                ticks = [(patch._x0 + patch._x0 + patch._width)/2 for patch in patches]
-                ticklabels = [i + 1 for i in range(n_bins)]
+                if len(df_subjects[i].dropna()) and isinstance(df_subjects[i].dropna().iloc[0], str):
+                    try:
+                        fig = df_subjects[i].dropna().value_counts().plot(kind='bar', ax=ax).get_figure()
+                    except Exception as e:
+                        print(e)
+                        print(df_subjects[i].dropna())
+
+                    plt.xticks(rotation=0)
+                    new_ticks = [split_text(tick.get_text(), 3) for tick in ax.get_xticklabels()]
+                    ax.set_xticklabels(new_ticks)
+
+                else:
+                    x = pd.to_numeric(df_subjects[i], errors='coerce').dropna().to_numpy()
+                    n_bins = 5
+                    n, bins, patches = ax.hist(x, bins=n_bins, edgecolor='black')
+                    ticks = [(patch._x0 + patch._x0 + patch._width)/2 for patch in patches]
+                    ticklabels = [i + 1 for i in range(n_bins)]
+
+                    ax.set_xticks(ticks)
+                    ax.set_xticklabels(ticklabels)
 
                 words_in_a_row = 6
-                ax.set_xticks(ticks)
-                ax.set_xticklabels(ticklabels)
                 ax.set_title(split_text(i, words_in_a_row))
                 ax.set_xlabel('Оценка', fontsize=14)
                 ax.set_ylabel('Количество', fontsize=14)
