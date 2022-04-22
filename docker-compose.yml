@@ -1,0 +1,7 @@
+services:
+  parser:
+    image: parser:dev1.0
+    build: .
+    container_name: parser-site
+    dns:
+      - 77.88.8.8
